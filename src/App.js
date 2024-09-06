@@ -4,11 +4,14 @@ function App() {
   const [awsAccessKeyId, setAwsAccessKeyId] = useState("");
   const [awsSecretAccessKey, setAwsSecretAccessKey] = useState("");
   const [loading, setLoading] = useState(false);
+  const [suggestedIps, setSuggestedIps] = useState([]);
+  const [allocatedIps, setAllocatedIps] = useState([]);
   const [result, setResult] = useState(null);
-
   const handleAllocateIp = async () => {
-    setLoading(true);
     setResult(null);
+    setLoading(true);
+    setSuggestedIps([]);
+    setAllocatedIps([]);
 
     try {
       const response = await fetch("https://backend-ip-3.onrender.com/allocate-ip", {
@@ -22,14 +25,42 @@ function App() {
         }),
       });
 
-      const data = await response.json();
-      setResult(data);
+      if (!response.body) {
+        throw new Error("Readable stream not supported in this browser.");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+
+      // Read the stream in chunks
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        // Decode the current chunk of the stream
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n");
+
+        // Process each line of the streamed data
+        lines.forEach((line) => {
+          const ipMatch = line.match(/\d+\.\d+\.\d+\.\d+/); // Match IP addresses (IPv4 format)
+          if (ipMatch) {
+            if (line.includes("Suggested")) {
+              setSuggestedIps((prev) => [...prev, ipMatch[0]]); // Add only IP
+            } else if (line.includes("Allocated")) {
+              setAllocatedIps((prev) => [...prev, ipMatch[0]]); // Add only IP
+            }
+          }
+        });
+      }
+
+      setLoading(false);
     } catch (error) {
       console.error("Error:", error);
-    } finally {
       setLoading(false);
     }
   };
+
 
   const handleStopProcess = async () => {
     try {
@@ -42,6 +73,7 @@ function App() {
 
       const data = await response.json();
       console.log(data);
+      setResult(data);
     } catch (error) {
       console.error("Error:", error);
     }
@@ -91,7 +123,6 @@ function App() {
         >
           Stop Process
         </button>
-
         {result && (
           <div className="mt-6 p-4 bg-gray-100 rounded-lg">
             <h2 className="text-xl font-semibold mb-2 text-gray-800">Result</h2>
@@ -100,6 +131,31 @@ function App() {
             </pre>
           </div>
         )}
+        {!result && (
+        <div className="mt-6 p-4 bg-gray-100 rounded-lg">
+          <h2 className="text-xl font-semibold mb-2 text-gray-800">Results</h2>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800">Suggested IPs</h3>
+              <ul className="bg-gray-200 p-2 rounded-lg text-gray-700">
+                {suggestedIps.map((ip, index) => (
+                  <li key={index}>{ip}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800">Allocated IPs</h3>
+              <ul className="bg-gray-200 p-2 rounded-lg text-gray-700">
+                {allocatedIps.map((ip, index) => (
+                  <li key={index}>{ip}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+         )}
       </div>
     </div>
   );
