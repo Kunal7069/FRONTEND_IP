@@ -1,13 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 function App() {
   const [awsAccessKeyId, setAwsAccessKeyId] = useState("");
   const [awsSecretAccessKey, setAwsSecretAccessKey] = useState("");
-  const [region_name,setRegionname]=useState("")
+  const [regionName, setRegionName] = useState("");
+  const [regions, setRegions] = useState([]);  // State to store available regions
   const [loading, setLoading] = useState(false);
   const [suggestedIps, setSuggestedIps] = useState([]);
   const [allocatedIps, setAllocatedIps] = useState([]);
   const [result, setResult] = useState(null);
+
+  // Fetch available regions on component load
+  useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        const response = await fetch("https://backend-ip-3.onrender.com/fetch_regions");
+        const data = await response.json();
+        setRegions(data);  // Set fetched regions
+      } catch (error) {
+        console.error("Error fetching regions:", error);
+      }
+    };
+
+    fetchRegions();
+  }, []);  // Empty dependency array to run on component mount
+
   const handleAllocateIp = async () => {
     setResult(null);
     setLoading(true);
@@ -23,7 +40,7 @@ function App() {
         body: JSON.stringify({
           aws_access_key_id: awsAccessKeyId,
           aws_secret_access_key: awsSecretAccessKey,
-          region_name: region_name
+          region_name: regionName
         }),
       });
 
@@ -63,7 +80,6 @@ function App() {
     }
   };
 
-
   const handleStopProcess = async () => {
     try {
       const response = await fetch("https://backend-ip-3.onrender.com/stop", {
@@ -76,6 +92,7 @@ function App() {
       const data = await response.json();
       console.log(data);
       setResult(data);
+      setLoading(false);
     } catch (error) {
       console.error("Error:", error);
     }
@@ -108,16 +125,23 @@ function App() {
           />
         </div>
 
+        {/* Dropdown for selecting region */}
         <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Region Name"
-            value={region_name}
-            onChange={(e) => setRegionname(e.target.value)}
+          <select
+            placeholder="Region"
+            value={regionName}
+            onChange={(e) => setRegionName(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          >
+            <option value="" disabled>Select Region</option>
+            {regions.map((region, index) => (
+              <option key={index} value={region}>
+                {region}
+              </option>
+            ))}
+          </select>
         </div>
-              
+
         <button
           onClick={handleAllocateIp}
           disabled={loading}
@@ -135,6 +159,7 @@ function App() {
         >
           Stop Process
         </button>
+
         {result && (
           <div className="mt-6 p-4 bg-gray-100 rounded-lg">
             <h2 className="text-xl font-semibold mb-2 text-gray-800">Result</h2>
@@ -143,33 +168,32 @@ function App() {
             </pre>
           </div>
         )}
+
         {!result && (
-        <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-        <h2 className="text-xl font-semibold mb-2 text-gray-800">Results</h2>
-      
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800">Suggested IPs</h3>
-            {/* Set a fixed height and enable scrolling */}
-            <ul className="bg-gray-200 p-2 rounded-lg text-gray-700 overflow-y-auto h-32">
-              {suggestedIps.map((ip, index) => (
-                <li key={index}>{ip}</li>
-              ))}
-            </ul>
+          <div className="mt-6 p-4 bg-gray-100 rounded-lg">
+            <h2 className="text-xl font-semibold mb-2 text-gray-800">Results</h2>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800">Suggested IPs</h3>
+                <ul className="bg-gray-200 p-2 rounded-lg text-gray-700 overflow-y-auto h-32">
+                  {suggestedIps.map((ip, index) => (
+                    <li key={index}>{ip}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800">Allocated IPs</h3>
+                <ul className="bg-gray-200 p-2 rounded-lg text-gray-700 overflow-y-auto h-32">
+                  {allocatedIps.map((ip, index) => (
+                    <li key={index}>{ip}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </div>
-      
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800">Allocated IPs</h3>
-            {/* Set a fixed height and enable scrolling */}
-            <ul className="bg-gray-200 p-2 rounded-lg text-gray-700 overflow-y-auto h-32">
-              {allocatedIps.map((ip, index) => (
-                <li key={index}>{ip}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </div>
-         )}
+        )}
       </div>
     </div>
   );
