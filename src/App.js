@@ -3,6 +3,7 @@ import React, { useState } from "react";
 function App() {
   const [awsAccessKeyId, setAwsAccessKeyId] = useState("");
   const [awsSecretAccessKey, setAwsSecretAccessKey] = useState("");
+  const [region_name,setRegionname]=useState("")
   const [loading, setLoading] = useState(false);
   const [suggestedIps, setSuggestedIps] = useState([]);
   const [allocatedIps, setAllocatedIps] = useState([]);
@@ -22,6 +23,7 @@ function App() {
         body: JSON.stringify({
           aws_access_key_id: awsAccessKeyId,
           aws_secret_access_key: awsSecretAccessKey,
+          region_name: region_name
         }),
       });
 
@@ -106,6 +108,16 @@ function App() {
           />
         </div>
 
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Region Name"
+            value={region_name}
+            onChange={(e) => setRegionname(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+              
         <button
           onClick={handleAllocateIp}
           disabled={loading}
