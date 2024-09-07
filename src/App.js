@@ -133,28 +133,30 @@ function App() {
         )}
         {!result && (
         <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-          <h2 className="text-xl font-semibold mb-2 text-gray-800">Results</h2>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800">Suggested IPs</h3>
-              <ul className="bg-gray-200 p-2 rounded-lg text-gray-700">
-                {suggestedIps.map((ip, index) => (
-                  <li key={index}>{ip}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800">Allocated IPs</h3>
-              <ul className="bg-gray-200 p-2 rounded-lg text-gray-700">
-                {allocatedIps.map((ip, index) => (
-                  <li key={index}>{ip}</li>
-                ))}
-              </ul>
-            </div>
+        <h2 className="text-xl font-semibold mb-2 text-gray-800">Results</h2>
+      
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800">Suggested IPs</h3>
+            {/* Set a fixed height and enable scrolling */}
+            <ul className="bg-gray-200 p-2 rounded-lg text-gray-700 overflow-y-auto h-32">
+              {suggestedIps.map((ip, index) => (
+                <li key={index}>{ip}</li>
+              ))}
+            </ul>
+          </div>
+      
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800">Allocated IPs</h3>
+            {/* Set a fixed height and enable scrolling */}
+            <ul className="bg-gray-200 p-2 rounded-lg text-gray-700 overflow-y-auto h-32">
+              {allocatedIps.map((ip, index) => (
+                <li key={index}>{ip}</li>
+              ))}
+            </ul>
           </div>
         </div>
+      </div>
          )}
       </div>
     </div>
