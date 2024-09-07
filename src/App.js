@@ -4,13 +4,12 @@ function App() {
   const [awsAccessKeyId, setAwsAccessKeyId] = useState("");
   const [awsSecretAccessKey, setAwsSecretAccessKey] = useState("");
   const [regionName, setRegionName] = useState("");
-  const [regions, setRegions] = useState([]);  // State to store available regions
+  const [regions, setRegions] = useState([]);  
   const [loading, setLoading] = useState(false);
   const [suggestedIps, setSuggestedIps] = useState([]);
   const [allocatedIps, setAllocatedIps] = useState([]);
   const [result, setResult] = useState(null);
 
-  // Fetch available regions on component load
   useEffect(() => {
     const fetchRegions = async () => {
       try {
