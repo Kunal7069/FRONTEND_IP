@@ -13,7 +13,7 @@ function App() {
   useEffect(() => {
     const fetchRegions = async () => {
       try {
-        const response = await fetch("https://backend-ip-gsje.onrender.com/fetch_regions");
+        const response = await fetch("https://backend-ip-2.onrender.com/fetch_regions");
         const data = await response.json();
         setRegions(data);  // Set fetched regions
       } catch (error) {
@@ -31,7 +31,7 @@ function App() {
     setAllocatedIps([]);
 
     try {
-      const response = await fetch("https://backend-ip-gsje.onrender.com/allocate-ip", {
+      const response = await fetch("https://backend-ip-2.onrender.com/allocate-ip", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -81,7 +81,7 @@ function App() {
 
   const handleStopProcess = async () => {
     try {
-      const response = await fetch("https://backend-ip-gsje.onrender.com/stop", {
+      const response = await fetch("https://backend-ip-2.onrender.com/stop", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
